@@ -10,3 +10,7 @@ Chu y quang trong:
 - De thu muc www duoc upload len heroku ta phai XOA DONG www trong file: .gitignore
 - De cai tu dong len heroku ta viet noi dung cua file: herokuDeploy.sh de su dung lenh linux chuyen len
 
+
+
+-- npm install @ionic/app-scripts@latest --save-dev
+
