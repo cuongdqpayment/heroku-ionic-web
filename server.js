@@ -10,9 +10,6 @@ app.all('*', function(req, res, next) {
     next();
 });
 
-// API Routes
-// app.get('/blah', routeHandler);
-
 app.set('port', process.env.PORT || 5000);
 
 app.listen(app.get('port'), function () {

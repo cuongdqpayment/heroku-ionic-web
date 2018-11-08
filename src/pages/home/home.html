@@ -1,11 +1,35 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>
-      c3.mobifone.vn
-    </ion-title>
+    <ion-title>Home</ion-title>
   </ion-navbar>
 </ion-header>
 
-<ion-content padding>
- Noi dung c3 se thiet ke trang web chinh cua c3 tai day
+<ion-content padding class="home">
+  <ion-grid *ngIf="weather">
+    <ion-row>
+      <ion-col with-50 offset-25>
+        <h2 class="location">{{weather.name}}</h2>
+        <h3 class="desc">{{weather?.weather[0]?.main}}({{weather?.weather[0]?.description}})</h3>
+        <h1 class="temp">{{weather?.main?.temp}}&deg;</h1>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-list>
+        <ion-item>
+          <strong>Temp: </strong> {{weather?.main?.temp}}
+        </ion-item>
+        <ion-item>
+          <strong>Humidity: </strong> {{weather?.main?.humidity}}
+        </ion-item>
+        <ion-item>
+          <strong>Pressure: </strong> {{weather?.main?.pressure}}
+        </ion-item>
+      </ion-list>
+    </ion-row>
+  </ion-grid>
 </ion-content>
+<ion-footer>
+<div>
+  <h2>day la footer</h2>
+</div>
+</ion-footer>
