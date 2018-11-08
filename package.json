@@ -5,8 +5,8 @@
   "homepage": "http://ionicframework.com/",
   "private": true,
   "scripts": {
+    "start": "node server.js",
     "build": "ionic-app-scripts build",
-    "start": "ionic-app-scripts serve",
     "clean": "ionic-app-scripts clean",
     "lint": "ionic-app-scripts lint"
   },
