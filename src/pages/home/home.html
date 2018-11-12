@@ -1,35 +1,41 @@
 <ion-header>
   <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>Home</ion-title>
   </ion-navbar>
-</ion-header>
-
-<ion-content padding class="home">
-  <ion-grid *ngIf="weather">
+ </ion-header>
+ 
+ <ion-content>
+  <ion-grid>
     <ion-row>
-      <ion-col with-50 offset-25>
-        <h2 class="location">{{weather.name}}</h2>
-        <h3 class="desc">{{weather?.weather[0]?.main}}({{weather?.weather[0]?.description}})</h3>
-        <h1 class="temp">{{weather?.main?.temp}}&deg;</h1>
+      <ion-col *ngFor="let user of users | async" col-12 col-xl-2 col-lg-3 col-md-4>
+        <ion-card>
+          <ion-item>
+            <ion-avatar item-start>
+              <img [src]="user.picture.medium">
+            </ion-avatar>
+            <h2 text-capitalize>{{ user.name?.first }} {{ user.name?.last }}</h2>
+          </ion-item>
+          <ion-card-content>
+            Bacon ipsum dolor amet salami prosciutto ham hock, strip steak buffalo ribeye pork chop. Beef ribs tenderloin tail shoulder.
+            Spare ribs ham shoulder brisket rump hamburger. Pork belly kevin shoulder prosciutto ribeye pork chop chicken
+            strip steak pig.
+          </ion-card-content>
+        </ion-card>
       </ion-col>
     </ion-row>
-    <ion-row>
-      <ion-list>
-        <ion-item>
-          <strong>Temp: </strong> {{weather?.main?.temp}}
-        </ion-item>
-        <ion-item>
-          <strong>Humidity: </strong> {{weather?.main?.humidity}}
-        </ion-item>
-        <ion-item>
-          <strong>Pressure: </strong> {{weather?.main?.pressure}}
-        </ion-item>
-      </ion-list>
-    </ion-row>
   </ion-grid>
-</ion-content>
-<ion-footer>
-<div>
-  <h2>day la footer</h2>
-</div>
-</ion-footer>
+  <ion-fab right bottom class="web-fab">
+    <button ion-fab icon-only color="primary" (click)="checkPlatform()">
+      <ion-icon name="help"></ion-icon>
+    </button>
+   </ion-fab>
+   
+   <ion-fab right top edge class="mobile-fab">
+    <button ion-fab icon-only color="primary" (click)="checkPlatform()">
+      <ion-icon name="help"></ion-icon>
+    </button>
+   </ion-fab>
+ </ion-content>
