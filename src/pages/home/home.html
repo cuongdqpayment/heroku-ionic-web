@@ -4,38 +4,37 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>Home</ion-title>
+    
+    <ion-buttons slot="end">
+        <button (click)="openCart()">
+          <ion-badge *ngIf="page > 0">{{ page }}</ion-badge>
+          <ion-icon slot="icon-only" name="cart"></ion-icon>
+        </button>
+    </ion-buttons>
+
   </ion-navbar>
  </ion-header>
  
  <ion-content>
   <ion-grid>
     <ion-row>
-      <ion-col *ngFor="let user of users | async" col-12 col-xl-2 col-lg-3 col-md-4>
+      <!-- <ion-col *ngFor="let user of users | async" col-12 col-xl-4 col-lg-4 col-md-6 col-sm-6> -->
+      <ion-col *ngFor="let user of users" col-12 col-xl-4 col-lg-4 col-md-6 col-sm-6>
         <ion-card>
           <ion-item>
             <ion-avatar item-start>
-              <img [src]="user.picture.medium">
+              <img [src]="user.picture?.medium">
             </ion-avatar>
             <h2 text-capitalize>{{ user.name?.first }} {{ user.name?.last }}</h2>
           </ion-item>
           <ion-card-content>
-            Bacon ipsum dolor amet salami prosciutto ham hock, strip steak buffalo ribeye pork chop. Beef ribs tenderloin tail shoulder.
-            Spare ribs ham shoulder brisket rump hamburger. Pork belly kevin shoulder prosciutto ribeye pork chop chicken
-            strip steak pig.
+            Đây là nội dung BIẾT làm sao đây nè
           </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-fab right bottom class="web-fab">
-    <button ion-fab icon-only color="primary" (click)="checkPlatform()">
-      <ion-icon name="help"></ion-icon>
-    </button>
-   </ion-fab>
-   
-   <ion-fab right top edge class="mobile-fab">
-    <button ion-fab icon-only color="primary" (click)="checkPlatform()">
-      <ion-icon name="help"></ion-icon>
-    </button>
-   </ion-fab>
+  <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
+ </ion-infinite-scroll>
  </ion-content>
