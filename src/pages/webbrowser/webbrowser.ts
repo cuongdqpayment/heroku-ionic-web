@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { ApiService } from '../../providers/apiService';
-import { Observable } from 'rxjs/Observable';
+//import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'page-webbrowser',
