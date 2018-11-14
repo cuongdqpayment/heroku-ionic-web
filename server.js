@@ -26,8 +26,8 @@ app.all('*', (req, res, next) => {
             form.parse(req, function (err, fields, files) {
                 //filetoupload -- la ten cua form post len
                 //neu khong co ten nay thi se bi loi o day
-                console.log("bien nhan duoc:");
-                console.log(files);
+                //console.log("bien nhan duoc:");
+                //console.log(files);
 
                 var oldpath = files.filetoupload.path;
                 var newPath0 = files.filetoupload.path.substring(0, files.filetoupload.path.lastIndexOf(systempath.sep));
@@ -68,8 +68,8 @@ app.all('*', (req, res, next) => {
             // When all request post data has been received.
             req.on('end', () => {
 
-                console.log('Du lieu nhan duoc : load any');
-                console.log(postData);
+                //console.log('Du lieu nhan duoc : load any');
+                //console.log(postData);
 
                 var postDataObject = JSON.parse(postData);
                 

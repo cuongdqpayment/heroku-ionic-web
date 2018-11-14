@@ -2,8 +2,8 @@
   <ion-toolbar color="primary">
     <ion-item class="input-item">
 
-      <button ion-button clear color="dark" type="button" item-left>
-        <ion-icon name="globe" class="icon-blue icon-size-small"></ion-icon>
+      <button ion-button clear color="dark" type="button" item-left (click)="goBack()">
+        <ion-icon name="md-arrow-dropleft-circle" class="icon-blue icon-size-larger"></ion-icon>
       </button>
 
       <ion-input type="text" [(ngModel)]="url" placeholder="Gõ địa chỉ để duyệt web từ server" (keyup.enter)="searchEnter()"></ion-input>

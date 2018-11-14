@@ -26,4 +26,8 @@ export class WebbrowserPage {
     );
   } 
 
+  goBack(){
+    this.navCtrl.pop();
+  }
+
 }
