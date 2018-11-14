@@ -96,7 +96,7 @@ app.all('*', (req, res, next) => {
             return res.end();
 
 
-        } else if (pathName.indexOf('/tmp/') >= 0) {
+        } else if (pathName.indexOf('/fileupload/') >= 0) {
 
             var fileRead = tempdir + '/' + pathName.substring(pathName.lastIndexOf(systempath.sep)+1);
             var contentType = 'image/jpeg';
@@ -113,13 +113,13 @@ app.all('*', (req, res, next) => {
                 }
             });
 
-        } else if (pathName.indexOf('/api/') >= 0){
+        } else if (pathName.indexOf('/sample.api/') >= 0){
             // get
             var reqUrlString = req.url;
             var urlObject = url.parse(reqUrlString, true, false);
 
             var fileName = urlObject.pathname;
-            fileName = fileName.substr(5);
+            fileName = fileName.substr(12);
 
             fs.readFile(fileName, { encoding: 'utf-8', flag: 'r' }, function (error, data) {
                 if (!error) {
@@ -138,7 +138,6 @@ app.all('*', (req, res, next) => {
         }
     }
 
-    
 });
 
 app.set('port', process.env.PORT || 5000);
