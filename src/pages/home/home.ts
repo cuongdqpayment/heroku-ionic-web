@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { Observable } from 'rxjs/Observable';
 import { Platform } from 'ionic-angular/platform/platform';
 import { AlertController } from 'ionic-angular/components/alert/alert-controller';
+import { WebbrowserPage } from '../webbrowser/webbrowser';
 import { ApiService } from '../../providers/apiService';
 
 @Component({
@@ -58,6 +58,11 @@ export class HomePage {
         );
       infiniteScroll.complete();
     }, 1000);
+  }
+
+
+  forwardWeb(){
+    this.navCtrl.push(WebbrowserPage);
   }
 
 }
