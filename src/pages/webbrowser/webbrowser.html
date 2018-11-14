@@ -1,0 +1,18 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-item class="input-item">
+
+      <button ion-button clear color="dark" type="button" item-left>
+        <ion-icon name="globe" class="icon-blue icon-size-small"></ion-icon>
+      </button>
+
+      <ion-input type="text" [(ngModel)]="url" placeholder="Gõ địa chỉ để duyệt web từ server" (keyup.enter)="searchEnter()"></ion-input>
+
+    </ion-item>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    {{ content }}
+</ion-content>

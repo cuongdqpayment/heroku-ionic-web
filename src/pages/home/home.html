@@ -1,18 +1,15 @@
 <ion-header>
   <ion-navbar>
-    <button ion-button menuToggle>
-      <ion-icon name="menu"></ion-icon>
-    </button>
-    <ion-title>Home</ion-title>
-    
-    <ion-buttons slot="end">
-        <button (click)="openCart()">
-          <ion-badge *ngIf="page > 0">{{ page }}</ion-badge>
-          <ion-icon slot="icon-only" name="cart"></ion-icon>
+      <ion-item>
+        <button ion-button menuToggle>
+          <ion-icon name="menu"></ion-icon>
         </button>
-    </ion-buttons>
-
-  </ion-navbar>
+        <ion-title>Home</ion-title>
+        <button ion-button clear type="button" item-right (click)="forwardWeb()">
+          <ion-icon name="at"></ion-icon>
+        </button>
+      </ion-item>
+    </ion-navbar>
  </ion-header>
  
  <ion-content>

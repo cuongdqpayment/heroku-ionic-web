@@ -13,4 +13,9 @@ export class ApiService{
            .map(res => res['results'])
            
   }
+
+  getHtmlWeb(url:string){
+    return this.httpClient.get(url);
+
+  }
 }

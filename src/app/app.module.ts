@@ -4,6 +4,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { WebbrowserPage } from '../pages/webbrowser/webbrowser';
 
 
 import { StatusBar } from '@ionic-native/status-bar';
@@ -15,7 +16,8 @@ import { ApiService } from '../providers/apiService';
 @NgModule({
  declarations: [
    MyApp,
-   HomePage
+   HomePage,
+   WebbrowserPage
  ],
  imports: [
    BrowserModule,
@@ -25,7 +27,8 @@ import { ApiService } from '../providers/apiService';
  bootstrap: [IonicApp],
  entryComponents: [
    MyApp,
-   HomePage
+   HomePage,
+   WebbrowserPage
  ],
  providers: [
    StatusBar,
