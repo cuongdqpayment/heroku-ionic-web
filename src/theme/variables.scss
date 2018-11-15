@@ -10,8 +10,8 @@ $split-pane-side-max-width: 12%;
 
 $colors: (
   primary:    #1f52aa,
-  high:       #3989ca,
   secondary:  #77b7eb,
+  header:     #0cb5e9,
   danger:     #f53d3d,
   light:      #f4f4f4,
   dark:       #222
@@ -27,4 +27,4 @@ $colors: (
 @import "roboto";
 @import "noto-sans";
 
-//$toolbar-background: color($colors, primary);
+$toolbar-background: color($colors, header);

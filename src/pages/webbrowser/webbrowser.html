@@ -1,16 +1,16 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-item class="input-item">
+    <ion-navbar>
+        <ion-item class="input-item">
+          <ion-input type="text" [(ngModel)]="url" placeholder="Gõ địa chỉ để duyệt web từ server" (keyup.enter)="searchEnter()"></ion-input>
+        </ion-item>
+        <ion-buttons end>
+            <button ion-button icon-only color="royal">
+              <ion-icon name="share-alt" ios="ios-share-alt" md="md-share-alt"></ion-icon>
+            </button>
+        </ion-buttons>
+</ion-navbar>
+  
 
-      <button ion-button clear color="dark" type="button" item-left (click)="goBack()">
-        <ion-icon name="md-arrow-dropleft-circle" class="icon-blue icon-size-larger"></ion-icon>
-      </button>
-
-      <ion-input type="text" [(ngModel)]="url" placeholder="Gõ địa chỉ để duyệt web từ server" (keyup.enter)="searchEnter()"></ion-input>
-
-    </ion-item>
-
-  </ion-toolbar>
 </ion-header>
 
 <ion-content>

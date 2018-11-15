@@ -11,13 +11,13 @@
  }
  
  .list-item {
-    color: #ffffffa6;
+    color: #ffffff;
     margin-bottom: 10px;
     font-size: 2rem;
  }
  
  :hover.list-item {
-    background: color($colors, high);
+    background: color($colors, primary);
  }
  
  .scroll-content{
