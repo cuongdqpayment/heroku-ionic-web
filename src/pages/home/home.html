@@ -1,18 +1,25 @@
 <ion-header>
   <ion-navbar>
       <ion-item>
-        <button ion-button menuToggle>
-          <ion-icon name="menu"></ion-icon>
-        </button>
-        <ion-title>Home</ion-title>
-        <button ion-button clear type="button" item-right (click)="forwardWeb()">
-          <ion-icon name="at"></ion-icon>
-        </button>
+          <button ion-button menuToggle>
+            <ion-icon name="menu"></ion-icon>
+          </button>
+          <ion-title>Home</ion-title>
+          <button ion-button clear type="button" item-right (click)="forwardWeb()">
+            <ion-icon name="at"></ion-icon>
+          </button>
+          <button ion-button clear type="button" item-right>
+            <ion-icon name="globe"></ion-icon>
+          </button>
+          <button ion-button clear type="button" item-right>
+            <ion-icon name="globe"></ion-icon>
+          </button>
+          
       </ion-item>
-    </ion-navbar>
- </ion-header>
- 
- <ion-content>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
   <ion-grid>
     <ion-row>
       <!-- <ion-col *ngFor="let user of users | async" col-12 col-xl-4 col-lg-4 col-md-6 col-sm-6> -->
@@ -33,8 +40,8 @@
   </ion-grid>
   <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data..."></ion-infinite-scroll-content>
- </ion-infinite-scroll>
- </ion-content>
- <ion-footer>
-   day la footer ne
- </ion-footer>
+  </ion-infinite-scroll>
+</ion-content>
+<ion-footer color="primary">
+  day la footer ne
+</ion-footer>

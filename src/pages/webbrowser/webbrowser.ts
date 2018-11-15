@@ -24,6 +24,9 @@ export class WebbrowserPage {
   searchEnter(){
     //neu parse truc tiep se cho ra web nguyen mau
     this.link = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
+    
+    //neu muon doc lay text thoi thi phai chuyen sang html nhung vao
+    //<div style="overflow-x:auto;" [innerHTML]="this.content"></div>
     /* this.apiService.getHtmlWeb(this.url)
         .subscribe( texthtml => this.content = this.sanitizer.bypassSecurityTrustHtml(texthtml))
         ,(err=>console.log(err)); */
