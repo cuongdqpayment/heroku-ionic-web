@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
-import { ApiService } from '../../providers/apiService';
+//import { ApiService } from '../../providers/apiService';
 import { SafeResourceUrl, DomSanitizer} from '@angular/platform-browser';
 
 @Component({
@@ -16,8 +16,7 @@ export class WebbrowserPage {
 
   constructor(public navCtrl: NavController, 
               public navParams: NavParams,
-              private sanitizer: DomSanitizer,
-              private apiService: ApiService
+              private sanitizer: DomSanitizer
               ) {
   }
 

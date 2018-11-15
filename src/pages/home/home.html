@@ -8,7 +8,8 @@
           </ion-buttons>
           <ion-buttons end>
               <button ion-button icon-only color="royal" (click)="forwardWeb()">
-                <ion-icon name="cog" ios="ios-cog" md="md-cog"></ion-icon>
+                <ion-icon name="notifications" ios="ios-notifications" md="md-notifications"></ion-icon>
+                <ion-badge color="danger" *ngIf="page > 0">{{ page }}</ion-badge>
               </button>
           </ion-buttons>
   </ion-navbar>

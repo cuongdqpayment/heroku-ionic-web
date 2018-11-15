@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { Nav, Platform, NavController } from 'ionic-angular';
+import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -42,6 +42,9 @@ export class MyApp {
         this.navCtrl.setRoot(HomePage);
         break;
       case 2:
+        this.navCtrl.setRoot(HomePage);
+        break;
+      case 99:
       this.navCtrl.push(WebbrowserPage);
         break;
       default:

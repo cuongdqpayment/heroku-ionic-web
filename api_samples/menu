@@ -1,0 +1,15 @@
+{ "menu":
+    [
+    {
+     "title":"Trang chủ",
+     "page_id":1
+    },
+    {
+     "title":"Tin tức",
+     "page_id":2
+    },
+    {
+     "title":"Tìm kiếm",
+     "page_id":99
+    }]
+}

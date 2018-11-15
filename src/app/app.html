@@ -6,32 +6,38 @@ lg	960px	Set grid width to 960px when (min-width: 992px)
 xl	1140px	Set grid width to 1140px when (min-width: 1200px)
 -->
 <ion-split-pane when="md">
-
-    <ion-menu [content]="content">
-      <ion-header>
-        <ion-toolbar color="primary">
-          <ion-buttons start>
-            <button ion-button icon-only color="royal" (click)="goSearch()">
-              <ion-icon name="search"></ion-icon>
-            </button>
-          </ion-buttons>
-          <ion-title>Login...</ion-title>
-          <ion-buttons end>
-            <button ion-button icon-only color="royal">
-              <ion-icon name="person-add"></ion-icon>
-            </button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-   
-      <ion-content class="menu-container">
-        <ion-list no-lines>
-          <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)" class="transparent list-item">
-            {{p.title}}
+  <ion-menu [content]="content" *ngIf="true">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons start>
+          <button ion-button icon-only color="royal" (click)="goSearch()">
+            <ion-icon name="search"></ion-icon>
           </button>
-        </ion-list>
-      </ion-content>
-    </ion-menu>
-    <!-- Disable swipe-to-go-back because it's poor UX to combine STGB with side menus -->
-    <ion-nav [root]="rootPage" #content main swipeBackEnabled="false"></ion-nav>
-    </ion-split-pane>
+        </ion-buttons>
+        <ion-title>
+          Login...
+        </ion-title>
+        <ion-buttons end>
+          <button ion-button icon-only color="royal">
+            <ion-icon name="person-add"></ion-icon>
+          </button>
+        </ion-buttons>
+        <ion-buttons right>
+          <button ion-button icon-only color="royal">
+            <ion-icon name="cog" ios="ios-cog" md="md-cog"></ion-icon>
+          </button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="menu-container">
+      <ion-list no-lines>
+        <button menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)" class="transparent list-item">
+          {{p.title}}
+        </button>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+  <!-- Disable swipe-to-go-back because it's poor UX to combine STGB with side menus -->
+  <ion-nav [root]="rootPage" #content main swipeBackEnabled="false"></ion-nav>
+</ion-split-pane>
