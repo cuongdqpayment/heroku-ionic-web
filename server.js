@@ -113,13 +113,13 @@ app.all('*', (req, res, next) => {
                 }
             });
 
-        } else if (pathName.indexOf('/sample.api/') >= 0){
+        } else if (pathName.indexOf('/api_samples/') >= 0){
             // get
             var reqUrlString = req.url;
             var urlObject = url.parse(reqUrlString, true, false);
 
             var fileName = urlObject.pathname;
-            fileName = fileName.substr(12);
+            fileName = "api_samples"+ systempath.sep + fileName.substr(13);
 
             fs.readFile(fileName, { encoding: 'utf-8', flag: 'r' }, function (error, data) {
                 if (!error) {

@@ -25,7 +25,6 @@ tmp/
 temp/
 platforms/
 plugins/
-www/
 plugins/android.json
 plugins/ios.json
 $RECYCLE.BIN/
@@ -33,3 +32,4 @@ $RECYCLE.BIN/
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate
+.gitignore

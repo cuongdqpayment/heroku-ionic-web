@@ -1,9 +1,26 @@
+<!-- 
+xs	auto	Don’t set the grid width for xs screens
+sm	540px	Set grid width to 540px when (min-width: 576px)
+md	720px	Set grid width to 720px when (min-width: 768px)
+lg	960px	Set grid width to 960px when (min-width: 992px)
+xl	1140px	Set grid width to 1140px when (min-width: 1200px)
+-->
 <ion-split-pane when="md">
 
     <ion-menu [content]="content">
       <ion-header>
-        <ion-toolbar color="secondary">
-          <ion-title>Menu</ion-title>
+        <ion-toolbar color="primary">
+          <ion-buttons start>
+            <button ion-button icon-only color="royal" (click)="goSearch()">
+              <ion-icon name="search"></ion-icon>
+            </button>
+          </ion-buttons>
+          <ion-title>Login...</ion-title>
+          <ion-buttons end>
+            <button ion-button icon-only color="royal">
+              <ion-icon name="person-add"></ion-icon>
+            </button>
+          </ion-buttons>
         </ion-toolbar>
       </ion-header>
    
@@ -14,9 +31,7 @@
           </button>
         </ion-list>
       </ion-content>
-   
     </ion-menu>
-   
     <!-- Disable swipe-to-go-back because it's poor UX to combine STGB with side menus -->
     <ion-nav [root]="rootPage" #content main swipeBackEnabled="false"></ion-nav>
     </ion-split-pane>

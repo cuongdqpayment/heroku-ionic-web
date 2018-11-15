@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { ApiService } from '../../providers/apiService';
-//import { Observable } from 'rxjs/Observable';
+import { SafeResourceUrl, DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'page-webbrowser',
@@ -9,21 +9,24 @@ import { ApiService } from '../../providers/apiService';
 })
 export class WebbrowserPage {
 
-  url:string;
-  content:any;
+  public url: string;
+  public title: string;
+  public link: SafeResourceUrl;
+  public content: any;
 
   constructor(public navCtrl: NavController, 
               public navParams: NavParams,
-              private apiService: ApiService) {
+              private sanitizer: DomSanitizer,
+              private apiService: ApiService
+              ) {
   }
 
   searchEnter(){
-    this.apiService.getHtmlWeb(this.url).subscribe(data=> 
-      {
-        console.log(data);
-        this.content=data;
-      }
-    );
+    //neu parse truc tiep se cho ra web nguyen mau
+    this.link = this.sanitizer.bypassSecurityTrustResourceUrl(this.url);
+    /* this.apiService.getHtmlWeb(this.url)
+        .subscribe( texthtml => this.content = this.sanitizer.bypassSecurityTrustHtml(texthtml))
+        ,(err=>console.log(err)); */
   } 
 
   goBack(){
