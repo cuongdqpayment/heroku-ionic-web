@@ -80,4 +80,6 @@ GET /index.html ...
 
 
 
+#Tao file ionic moi:
+ionic g page news
 
