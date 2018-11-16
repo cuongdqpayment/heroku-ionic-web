@@ -57,7 +57,7 @@ POST /*
 
 #dowload file from os.temp();
 #su dung kiem tra file upload len luu vao temp
-GET /file_upload/*<tenfile>
+GET /file_upload/<tmp/fix>/<tenfile>
 
 #Dowload file mau API bat ky duoi dang text json
 #cac mau duoc khai bao truoc bang ten file
@@ -70,10 +70,10 @@ GET /url_request/<url can truy van>
 GET /url_request_image/<url can truy van>
 
 #View list image co trong server
-GET /test_list_images/
+GET /test_list_images/<tmp/*>
 
 #Dowload danh sach image duoc upload len os.temp();
-GET /uploaded_images/
+GET /uploaded_images/<tmp/*>
 
 #Su dung get www cua ionic
 GET /index.html ...

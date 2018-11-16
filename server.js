@@ -4,31 +4,33 @@ const url = require('url');
 const formidable = require('formidable');
 const systempath = require('path');
 const os = require('os');
-const tempdir = os.tmpdir();
 const mime = require('mime-types');
 const request = require('request');
 const HTMLParser = require('node-html-parser');
 const cheerio = require('cheerio');
 
+const tempdir = os.tmpdir();
+var dirUpload = 'upload_files';
 
+if (!fs.existsSync(dirUpload)){
+    fs.mkdirSync(dirUpload);
+}
+
+//dang ky duong dan tuyet doi co dinh cho ionic
 app.use(express.static('www'));
+
 
 // CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
 app.all('*', (req, res, next) => {
     const reqUrlString = req.url;
-    const reqOriginalPath = req.originalUrl;
+    //const reqOriginalPath = req.originalUrl;
     const method = req.method;
     const pathName = decodeURIComponent(url.parse(reqUrlString, true, false).pathname);
 
     const reqFullHost = req.protocol + '://' + req.get('host');    
 
-
     //encodeURIComponent('אובמה') // %D7%90%D7%95%D7%91%D7%9E%D7%94 
     //decodeURIComponent('%D7%90%D7%95%D7%91%D7%9E%D7%94') // אובמה
-
-    //console.log(reqFullHost);
-    //console.log(reqOriginalPath);
-    //console.log(pathName);
 
     if ("POST" == method) {
 
@@ -40,14 +42,45 @@ app.all('*', (req, res, next) => {
             form.parse(req, function (err, fields, files) {
                 //filetoupload -- la ten cua form post len
                 //neu khong co ten nay thi se bi loi o day
-                //console.log("bien nhan duoc:");
-                //console.log(files);
+                /* console.log("bien nhan duoc err:");
+                console.log(err);
+                console.log("bien nhan duoc fields:");
+                console.log(JSON.stringify(fields));
+                console.log("bien nhan duoc files:"); */
+                //console.log(JSON.stringify(files));
+                //console.log(JSON.stringify(files));
+                //quy dinh file name = "file2Upload"
+                if (files.file2Upload
+                    &&files.file2Upload.path  //full path filename
+                    &&files.file2Upload.name  //filename
+                    &&files.file2Upload.type  //mintype
+                    &&files.file2Upload.size  //size
+                    ){
+                    let curdatetime = new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g,'').replace(/:/g,'');
 
-                var oldpath = files.filetoupload.path;
+                    var filenameStored = dirUpload + systempath.sep 
+                                        + curdatetime + "_"
+                                        + files.file2Upload.size + "_"
+                                        + files.file2Upload.name;
+                    fs.createReadStream(files.file2Upload.path)
+                      .pipe(fs.createWriteStream(filenameStored))
+                    ;
+
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*','Content-Type': 'application/json' });
+                    res.end(JSON.stringify({file_name: filenameStored,
+                                            command_id: 'upload',
+                                            status: 'ok',
+                                            message: 'ban da upload file thanh cong!'}));
+                }else{
+                    res.writeHead(404, { 'Access-Control-Allow-Origin': '*','Content-Type': 'application/json' });
+                    res.end('{"command_id": "upload", "status": "nok", "message": "No file uploaded!"}');
+                }
+                //////////////////////////
+                /* var oldpath = files.filetoupload.path;
+                
                 var newPath0 = files.filetoupload.path.substring(0, files.filetoupload.path.lastIndexOf(systempath.sep));
                 ///////////////////////////////////////////////
                 //'uploadfiles/' 
-                res.writeHead(200, { 'Access-Control-Allow-Origin': '*' });
 
                 //luu vao thu muc cua lap trinh uploadfiles
                 var newpath = 'file_upload/' + files.filetoupload.name;
@@ -64,9 +97,8 @@ app.all('*', (req, res, next) => {
                         });
 
                     } else {
-                        res.end('{"file_name": "' + newpath + '", "command_id": "upload", "status": "ok", "message": "ban da upload file thanh cong!"}');
                     }
-                });
+                }); */
                 ///////////////////////////////////////////////
             });
 
@@ -103,9 +135,10 @@ app.all('*', (req, res, next) => {
 
             res.writeHead(200, { 'Content-Type': 'text/html' });
             //gui den duong dan file_upload nhe
-            //neu muon chuyen thanh http://host/post_api cung duoc???
-            res.write('<form action="file_upload" method="post" enctype="multipart/form-data">');
-            res.write('<input type="file" name="filetoupload"><br>');
+            //neu muon chuyen thanh http://host/file_upload
+            res.write('<form action="'+reqFullHost+'/file_upload" method="post" enctype="multipart/form-data">');
+            res.write('<input type="text" name="user" value="cuongdq"><br>');
+            res.write('<input type="file" name="file2Upload" multiple><br>');
             res.write('<input type="submit">');
             res.write('</form>');
 
@@ -113,9 +146,10 @@ app.all('*', (req, res, next) => {
 
         } else if (pathName.indexOf('/file_upload/') >= 0) {
             //Lay file tu thu muc temp cua he thong
-            var fileRead = tempdir + systempath.sep 
-                            + pathName.substring(13);
-            //console.log(pathName.substring(12));
+            //truy van co dang 
+            //GET /file_upload/<tmp/fix>/<tenfile>
+            const imgDir = pathName.substring(13)=='tmp'?tempdir:dirUpload;
+            var fileRead = imgDir + systempath.sep + pathName.substring(17);
             var contentType = 'image/jpeg';
             if (mime.lookup(pathName)) contentType = mime.lookup(pathName);
             //console.log("contentType = "  + contentType);
@@ -173,17 +207,23 @@ app.all('*', (req, res, next) => {
                     //doc body lay mot anh dai dien?? icon?? 
                     res.writeHead(200, { 'Access-Control-Allow-Origin': '*' ,'Content-Type': 'application/json' });
                     //loc lay anh dai dien dau tien va tra ve json anh
-                    let root = HTMLParser.parse(body);
-                    let img = root.querySelector('img').toString();
-                    const $ = cheerio.load(img);
-                    let url_img = $('img').attr('src');
-                    //console.log(url_img);
+                    const root = HTMLParser.parse(body);
+                    const imgHtml = (root.querySelector('img')?root.querySelector('img').toString():'<img src="">');
+                    const $ = cheerio.load(imgHtml);
+                    const url_img = $('img').attr('src');
+                    const title = (root.querySelector('title')?root.querySelector('title').text:'');
+                    const h1 = (root.querySelector('h1')?root.querySelector('h1').text:'');
+                    const h2 = (root.querySelector('h2')?root.querySelector('h2').text:'');
                     res.end(JSON.stringify(
                         {
-                        "image":(url_img.indexOf("://")>0?url_img:urlRequest+"/"+url_img),
-                        "image_inter":url_img,
-                        "host": urlRequest,
-                        "path": pathName
+                        image: (url_img.indexOf("://")>0?url_img:urlRequest+"/"+url_img),
+                        image_inter: url_img,
+                        protocol: url_img.substring(0,url_img.indexOf("://")),
+                        host: urlRequest,
+                        path: pathName,
+                        title: title,
+                        h1: h1,
+                        h2:h2
                         }
                         ));
                 }else{
@@ -195,10 +235,13 @@ app.all('*', (req, res, next) => {
 
         } else if (pathName.indexOf('/uploaded_images/') >= 0){
             // list toan bo cac file upload len sys.tmp kieu anh thoi
+            const imgDir = pathName.substring(17)=='tmp'?tempdir:dirUpload;
+            const imgLink = pathName.substring(17)=='tmp'?'tmp':'fix';
+
             var list_images = [];
             var responseJson = {"results":"[]","status":"OK","message":"List image uploaded OK!"};
 
-            fs.readdir(tempdir+systempath.sep, (err,files)=>{
+            fs.readdir(imgDir + systempath.sep, (err,files)=>{
                 if (!err&&files){
                     let i=0;
                     files.forEach(file=>{
@@ -210,7 +253,10 @@ app.all('*', (req, res, next) => {
                             list_images.push({
                                 "id":++i,
                                 "content_type":mime.lookup(file),
-                                "src_url":reqFullHost+"/file_upload/"+file
+                                "src_url":reqFullHost
+                                        + "/file_upload/"
+                                        + imgLink + "/" 
+                                        + file
                                 });
                         }
                     })
@@ -234,9 +280,10 @@ app.all('*', (req, res, next) => {
         } else if (pathName.indexOf('/test_list_images/') >= 0){
             //
             // list toan bo cac file upload len sys.tmp kieu anh thoi
+            const imgDir = pathName.substring(18)=='tmp'?tempdir:dirUpload;
+            const imgLink = pathName.substring(18)=='tmp'?'tmp':'fix';
             res.writeHead(200, { 'Content-Type': 'text/html' });
-
-            fs.readdir(tempdir+systempath.sep, (err,files)=>{
+            fs.readdir(imgDir + systempath.sep, (err,files)=>{
                 if (!err&&files){
                     let i=0;
                     files.forEach(file=>{
@@ -244,7 +291,9 @@ app.all('*', (req, res, next) => {
                             &&
                             mime.lookup(file).indexOf('image/')>=0) {
                             res.write("<p>"+"<img title='" + file + "' "+ "alt='"+ (++i) + "' " +
-                                            " src='"+reqFullHost + "/file_upload/" + file + "' " 
+                                            " src='"+reqFullHost + "/file_upload/"
+                                            + imgLink + "/" 
+                                            + file + "' " 
                                             + " width='300' height='200' />"+"</p>");
                         }
                     })
@@ -254,6 +303,7 @@ app.all('*', (req, res, next) => {
                 return res.end();
             });
         } else {
+            //console.log(pathName);
             //lay file tu public directory
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -263,8 +313,11 @@ app.all('*', (req, res, next) => {
 
 });
 
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 8888);
 
 app.listen(app.get('port'), function () {
-    console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with : " +  + app.get('port') + " tempdir:" + os.tmpdir());
+    console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with PORT: " +  + app.get('port') 
+                + "\n tempdir: " + os.tmpdir()
+                + "\n " + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+                );
 });

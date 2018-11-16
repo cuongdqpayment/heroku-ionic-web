@@ -23,6 +23,10 @@ dist/
 node_modules/
 tmp/
 temp/
+#phai day www len server cho ionic hoat dong
+#www/
+#khong truyen file upload len hoac xuong
+upload_files/
 platforms/
 plugins/
 plugins/android.json
