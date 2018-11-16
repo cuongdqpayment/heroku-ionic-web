@@ -20,14 +20,16 @@ Lenh tren se dich ra thu muc www, push thu muc www nay len server la chay duoc
 
 
 # Tao server.js de tao node 
-npm install http fs url formidable path os mime-types
+npm install http fs url formidable path os mime-types node-html-parser cheerio
 - http la server
 - fs la doi tuong doc, ghi xuong dia
 - url la doi tuong xu ly url 
 - formidable la doi tuong xu ly formdata de lay du lieu tu form 
 - path la doi tuong lay duong dan he thong
 - os la doi tuong lay thong tin he thong
-- mime-types la doi tuong chuyen doi dang file sang content_type bao cho header biet de ung dung tai client goi ung dung lien quan mo file truc tiep ra
+- mime-types la doi tuong chuyen doi dang file sang content_type bao cho header 
+biet de ung dung tai client goi ung dung lien quan mo file truc tiep ra
+- node-html-parser cheerio la hai thanh phan ho tro parse html 
 
 # Noi dung file server.js thuc thi cac nhiem vu cua mot webserver gom:
 - server web html
@@ -38,4 +40,44 @@ npm install http fs url formidable path os mime-types
 
 
 -- npm install @ionic/app-scripts@latest --save-dev
+
+
+
+#Cac duong dan:
+
+#mo form test upload file
+GET /test_upload/
+
+#gui file bang form len upload
+POST /file_upload/
+
+#gui len serer chuoi json POST
+#{command_id:"lenh gi"}
+POST /*
+
+#dowload file from os.temp();
+#su dung kiem tra file upload len luu vao temp
+GET /file_upload/*<tenfile>
+
+#Dowload file mau API bat ky duoi dang text json
+#cac mau duoc khai bao truoc bang ten file
+GET /api_samples/*<tenfile trong thu muc __dirsource?? + api_samples>
+
+#Gia lap lam proxy server get request url from server
+GET /url_request/<url can truy van>
+
+#Lay thong tin anh dai dien va tom luot cua trang web
+GET /url_request_image/<url can truy van>
+
+#View list image co trong server
+GET /test_list_images/
+
+#Dowload danh sach image duoc upload len os.temp();
+GET /uploaded_images/
+
+#Su dung get www cua ionic
+GET /index.html ...
+
+
+
 
