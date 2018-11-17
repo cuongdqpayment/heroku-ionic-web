@@ -1,4 +1,4 @@
-const express = require('express'),app = express();
+const express = require('express'), app = express();
 const fs = require('fs');
 const url = require('url');
 const formidable = require('formidable');
@@ -8,12 +8,20 @@ const mime = require('mime-types');
 const request = require('request');
 const HTMLParser = require('node-html-parser');
 const cheerio = require('cheerio');
+const screenShotHtml = require("node-server-screenshot");
 
+//duong dan temp cua he thong truong hop khong co quyen truy cap thu muc
 const tempdir = os.tmpdir();
-var dirUpload = 'upload_files';
-
-if (!fs.existsSync(dirUpload)){
+//tao duong dan luu tru file upload post
+const dirUpload = 'upload_files';
+if (!fs.existsSync(dirUpload)) {
     fs.mkdirSync(dirUpload);
+}
+
+//tao duong dan luu tru file anh chup man hinh
+const dirScreenShot = 'screen_shot_images';
+if (!fs.existsSync(dirScreenShot)) {
+    fs.mkdirSync(dirScreenShot);
 }
 
 //dang ky duong dan tuyet doi co dinh cho ionic
@@ -27,7 +35,7 @@ app.all('*', (req, res, next) => {
     const method = req.method;
     const pathName = decodeURIComponent(url.parse(reqUrlString, true, false).pathname);
 
-    const reqFullHost = req.protocol + '://' + req.get('host');    
+    const reqFullHost = req.protocol + '://' + req.get('host');
 
     //encodeURIComponent('אובמה') // %D7%90%D7%95%D7%91%D7%9E%D7%94 
     //decodeURIComponent('%D7%90%D7%95%D7%91%D7%9E%D7%94') // אובמה
@@ -36,7 +44,7 @@ app.all('*', (req, res, next) => {
 
         //neu duong dan post co ten la upload file thi xu ly upload
         if (pathName == '/file_upload') {
-            
+
             var form = new formidable.IncomingForm();
             //luu tru file vao dia 
             form.parse(req, function (err, fields, files) {
@@ -51,28 +59,30 @@ app.all('*', (req, res, next) => {
                 //console.log(JSON.stringify(files));
                 //quy dinh file name = "file2Upload"
                 if (files.file2Upload
-                    &&files.file2Upload.path  //full path filename
-                    &&files.file2Upload.name  //filename
-                    &&files.file2Upload.type  //mintype
-                    &&files.file2Upload.size  //size
-                    ){
-                    let curdatetime = new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g,'').replace(/:/g,'');
+                    && files.file2Upload.path  //full path filename
+                    && files.file2Upload.name  //filename
+                    && files.file2Upload.type  //mintype
+                    && files.file2Upload.size  //size
+                ) {
+                    let curdatetime = new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g, '').replace(/:/g, '');
 
-                    var filenameStored = dirUpload + systempath.sep 
-                                        + curdatetime + "_"
-                                        + files.file2Upload.size + "_"
-                                        + files.file2Upload.name;
+                    var filenameStored = dirUpload + systempath.sep
+                        + curdatetime + "_"
+                        + files.file2Upload.size + "_"
+                        + files.file2Upload.name;
                     fs.createReadStream(files.file2Upload.path)
-                      .pipe(fs.createWriteStream(filenameStored))
-                    ;
+                        .pipe(fs.createWriteStream(filenameStored))
+                        ;
 
-                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*','Content-Type': 'application/json' });
-                    res.end(JSON.stringify({file_name: filenameStored,
-                                            command_id: 'upload',
-                                            status: 'ok',
-                                            message: 'ban da upload file thanh cong!'}));
-                }else{
-                    res.writeHead(404, { 'Access-Control-Allow-Origin': '*','Content-Type': 'application/json' });
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        file_name: filenameStored,
+                        command_id: 'upload',
+                        status: 'ok',
+                        message: 'ban da upload file thanh cong!'
+                    }));
+                } else {
+                    res.writeHead(404, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
                     res.end('{"command_id": "upload", "status": "nok", "message": "No file uploaded!"}');
                 }
                 //////////////////////////
@@ -118,7 +128,7 @@ app.all('*', (req, res, next) => {
                 //console.log(postData);
 
                 var postDataObject = JSON.parse(postData);
-                
+
                 var commandId = postDataObject.command_id;
                 res.writeHead(200, { 'Access-Control-Allow-Origin': '*' });
 
@@ -136,7 +146,7 @@ app.all('*', (req, res, next) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             //gui den duong dan file_upload nhe
             //neu muon chuyen thanh http://host/file_upload
-            res.write('<form action="'+reqFullHost+'/file_upload" method="post" enctype="multipart/form-data">');
+            res.write('<form action="' + reqFullHost + '/file_upload" method="post" enctype="multipart/form-data">');
             res.write('<input type="text" name="user" value="cuongdq"><br>');
             res.write('<input type="file" name="file2Upload" multiple><br>');
             res.write('<input type="submit">');
@@ -148,7 +158,11 @@ app.all('*', (req, res, next) => {
             //Lay file tu thu muc temp cua he thong
             //truy van co dang 
             //GET /file_upload/<tmp/fix>/<tenfile>
-            const imgDir = pathName.substring(13)=='tmp'?tempdir:dirUpload;
+            let isTmp = pathName.substring(13,16)==='tmp';
+            let isScr = pathName.substring(13,16)==='scr';
+            let imgDir = isTmp ? tempdir : isScr? dirScreenShot : dirUpload;
+
+            //console.log(pathName.substring(13,16));
             var fileRead = imgDir + systempath.sep + pathName.substring(17);
             var contentType = 'image/jpeg';
             if (mime.lookup(pathName)) contentType = mime.lookup(pathName);
@@ -156,7 +170,7 @@ app.all('*', (req, res, next) => {
             //load image
             fs.readFile(fileRead, { flag: 'r' }, function (error, data) {
                 if (!error) {
-                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*','Content-Type': contentType});
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': contentType });
                     res.end(data);
                 } else {
                     res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
@@ -164,141 +178,157 @@ app.all('*', (req, res, next) => {
                 }
             });
 
-        } else if (pathName.indexOf('/api_samples/') >= 0){
+        } else if (pathName.indexOf('/api_samples/') >= 0) {
             // get file api from api_sample
             const fileName = pathName;
-            fileName = "api_samples"+ systempath.sep + fileName.substr(13);
+            fileName = "api_samples" + systempath.sep + fileName.substr(13);
 
             fs.readFile(fileName, { encoding: 'utf-8', flag: 'r' }, function (error, data) {
                 if (!error) {
-                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*','Content-Type': 'application/json' });
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
                     res.end(data);
                 } else {
                     res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
                     res.end(JSON.stringify(error));
                 }
             });
-        } else if (pathName.indexOf('/url_request/') >= 0){
+        } else if (pathName.indexOf('/url_request/') >= 0) {
             // get link su dung nodejs
             //lay chuoi request thuc su link
             const urlRequest = pathName.substr(13);
-            
+
             request(urlRequest, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     //console.log(body) // Print the google web page.
                     //doc body lay mot anh dai dien?? icon?? 
-                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*' , 'Content-Type': 'text/html' });
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/html' });
                     res.end(body);
-                }else{
+                } else {
                     //console.log(error);
                     res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
                     res.end(JSON.stringify(error));
                 }
             });
 
-        } else if (pathName.indexOf('/url_request_image/') >= 0){
+        } else if (pathName.indexOf('/url_request_image/') >= 0) {
             // get link su dung nodejs
             //lay chuoi request thuc su link
             const urlRequest = pathName.substr(19);
-            
+
+            let curdatetime = new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g, '').replace(/:/g, '');
+            const screenShotFilename = dirScreenShot
+                + systempath.sep
+                + curdatetime + "_" + "screenshot_"
+                + decodeURIComponent(urlRequest).replace(/\//g, '_').replace(/:/g, '')
+                + ".png";
+            //chup 1 anh cua duong dan luu vao screen_shot_images
+            screenShotHtml.fromURL(urlRequest, screenShotFilename,{width:327,height:245}, (err) => { });
+            //--------------  
+
             request(urlRequest, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     //console.log(body) // Print the google web page.
                     //doc body lay mot anh dai dien?? icon?? 
-                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*' ,'Content-Type': 'application/json' });
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
                     //loc lay anh dai dien dau tien va tra ve json anh
                     const root = HTMLParser.parse(body);
-                    const imgHtml = (root.querySelector('img')?root.querySelector('img').toString():'<img src="">');
+                    const imgHtml = (root.querySelector('img') ? root.querySelector('img').toString() : '<img src="">');
                     const $ = cheerio.load(imgHtml);
                     const url_img = $('img').attr('src');
-                    const title = (root.querySelector('title')?root.querySelector('title').text:'');
-                    const h1 = (root.querySelector('h1')?root.querySelector('h1').text:'');
-                    const h2 = (root.querySelector('h2')?root.querySelector('h2').text:'');
+                    const title = (root.querySelector('title') ? root.querySelector('title').text : '');
+                    const h1 = (root.querySelector('h1') ? root.querySelector('h1').text : '');
+                    const h2 = (root.querySelector('h2') ? root.querySelector('h2').text : '');
+
                     res.end(JSON.stringify(
                         {
-                        image: (url_img.indexOf("://")>0?url_img:urlRequest+"/"+url_img),
-                        image_inter: url_img,
-                        protocol: url_img.substring(0,url_img.indexOf("://")),
-                        host: urlRequest,
-                        path: pathName,
-                        title: title,
-                        h1: h1,
-                        h2:h2
+                            image: (url_img.indexOf("://") > 0 ? url_img : urlRequest + "/" + url_img),
+                            image_inter: url_img,
+                            protocol: url_img.substring(0, url_img.indexOf("://")),
+                            host: urlRequest,
+                            path: pathName,
+                            title: title,
+                            h1: h1,
+                            h2: h2,
+                            screen_shot: screenShotFilename
                         }
-                        ));
-                }else{
+                    ));
+                } else {
                     //console.log(error);
                     res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
                     res.end(JSON.stringify(error));
                 }
             });
 
-        } else if (pathName.indexOf('/uploaded_images/') >= 0){
+        } else if (pathName.indexOf('/uploaded_images/') >= 0) {
             // list toan bo cac file upload len sys.tmp kieu anh thoi
-            const imgDir = pathName.substring(17)=='tmp'?tempdir:dirUpload;
-            const imgLink = pathName.substring(17)=='tmp'?'tmp':'fix';
+            let isTmp = pathName.substring(17) == 'tmp';
+            let isScr = pathName.substring(17) == 'scr';
+            let imgDir = isTmp ? tempdir : isScr? dirScreenShot : dirUpload;
+            let imgLink = isTmp ? 'tmp' : isScr? 'scr' : 'fix';
 
             var list_images = [];
-            var responseJson = {"results":"[]","status":"OK","message":"List image uploaded OK!"};
+            var responseJson = { "results": "[]", "status": "OK", "message": "List image uploaded OK!" };
 
-            fs.readdir(imgDir + systempath.sep, (err,files)=>{
-                if (!err&&files){
-                    let i=0;
-                    files.forEach(file=>{
+            fs.readdir(imgDir + systempath.sep, (err, files) => {
+                if (!err && files) {
+                    let i = 0;
+                    files.forEach(file => {
                         //console.log(file);
                         //console.log(mime.lookup(file));
                         if (mime.lookup(file)
                             &&
-                            mime.lookup(file).indexOf('image/')>=0){
+                            mime.lookup(file).indexOf('image/') >= 0) {
                             list_images.push({
-                                "id":++i,
-                                "content_type":mime.lookup(file),
-                                "src_url":reqFullHost
-                                        + "/file_upload/"
-                                        + imgLink + "/" 
-                                        + file
-                                });
+                                "id": ++i,
+                                "content_type": mime.lookup(file),
+                                "src_url": reqFullHost
+                                    + "/file_upload/"
+                                    + imgLink + "/"
+                                    + file
+                            });
                         }
                     })
-                }else{
+                } else {
                     //loi doc thu muc
-                    responseJson = {"status":"NOK","message":'"'+err+'"'};
+                    responseJson = { "status": "NOK", "message": '"' + err + '"' };
                 }
 
                 //tra ket qua ve cho client neu khong thi no doi miet
-                if (list_images.length>0){
-                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*' ,'Content-Type': 'application/json' });
+                if (list_images.length > 0) {
+                    res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
                     //res.end("Server had " + list_image.length);
                     responseJson["results"] = list_images;
                     res.end(JSON.stringify(responseJson));
-                }else{
+                } else {
                     res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
                     res.end(JSON.stringify(responseJson));
                 }
 
             });
-        } else if (pathName.indexOf('/test_list_images/') >= 0){
-            //
+        } else if (pathName.indexOf('/test_list_images/') >= 0) {
             // list toan bo cac file upload len sys.tmp kieu anh thoi
-            const imgDir = pathName.substring(18)=='tmp'?tempdir:dirUpload;
-            const imgLink = pathName.substring(18)=='tmp'?'tmp':'fix';
+            let isTmp = pathName.substring(18) == 'tmp';
+            let isScr = pathName.substring(18) == 'scr';
+            let imgDir = isTmp ? tempdir : isScr? dirScreenShot : dirUpload;
+            let imgLink = isTmp ? 'tmp' : isScr? 'scr' : 'fix';
+
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            fs.readdir(imgDir + systempath.sep, (err,files)=>{
-                if (!err&&files){
-                    let i=0;
-                    files.forEach(file=>{
+            fs.readdir(imgDir + systempath.sep, (err, files) => {
+                if (!err && files) {
+                    let i = 0;
+                    files.forEach(file => {
                         if (mime.lookup(file)
                             &&
-                            mime.lookup(file).indexOf('image/')>=0) {
-                            res.write("<p>"+"<img title='" + file + "' "+ "alt='"+ (++i) + "' " +
-                                            " src='"+reqFullHost + "/file_upload/"
-                                            + imgLink + "/" 
-                                            + file + "' " 
-                                            + " width='300' height='200' />"+"</p>");
+                            mime.lookup(file).indexOf('image/') >= 0) {
+                            res.write("<p>" + "<img title='" + file + "' " + "alt='" + (++i) + "' " +
+                                " src='" + reqFullHost + "/file_upload/"
+                                + imgLink + "/"
+                                + file + "' "
+                                + " width='300' height='200' />" + "</p>");
                         }
                     })
-                }else{
-                    res.write("<p>"+JSON.stringify(err)+"</p>");
+                } else {
+                    res.write("<p>" + JSON.stringify(err) + "</p>");
                 }
                 return res.end();
             });
@@ -316,8 +346,8 @@ app.all('*', (req, res, next) => {
 app.set('port', process.env.PORT || 8888);
 
 app.listen(app.get('port'), function () {
-    console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with PORT: " +  + app.get('port') 
-                + "\n tempdir: " + os.tmpdir()
-                + "\n " + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-                );
+    console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with PORT: " + + app.get('port')
+        + "\n tempdir: " + os.tmpdir()
+        + "\n " + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+    );
 });

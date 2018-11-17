@@ -57,7 +57,7 @@ POST /*
 
 #dowload file from os.temp();
 #su dung kiem tra file upload len luu vao temp
-GET /file_upload/<tmp/fix>/<tenfile>
+GET /file_upload/<tmp|scr|fix>/<tenfile>
 
 #Dowload file mau API bat ky duoi dang text json
 #cac mau duoc khai bao truoc bang ten file
@@ -66,14 +66,14 @@ GET /api_samples/*<tenfile trong thu muc __dirsource?? + api_samples>
 #Gia lap lam proxy server get request url from server
 GET /url_request/<url can truy van>
 
-#Lay thong tin anh dai dien va tom luot cua trang web
+#Lay thong tin anh dai dien va tom luot cua trang web, bo sung capture screen
 GET /url_request_image/<url can truy van>
 
-#View list image co trong server
-GET /test_list_images/<tmp/*>
+#View list image co trong server 
+GET /test_list_images/<tmp|scr|fix/*>
 
-#Dowload danh sach image duoc upload len os.temp();
-GET /uploaded_images/<tmp/*>
+#Dowload danh sach image duoc upload len os.temp()|screenshot|upload;
+GET /uploaded_images/<tmp|scr|fix/*>
 
 #Su dung get www cua ionic
 GET /index.html ...
