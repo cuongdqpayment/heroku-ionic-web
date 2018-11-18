@@ -27,6 +27,8 @@ temp/
 #www/
 #khong truyen file upload len hoac xuong
 upload_files/
+#khong truyen file screen_shot_images len
+screen_shot_images/
 platforms/
 plugins/
 plugins/android.json

@@ -5,6 +5,10 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { NewsPage } from '../pages/news/news';
+import { SignupPage } from '../pages/signup/signup';
+import { LoginPage } from '../pages/login/login';
+import { UploadPage } from '../pages/upload/upload';
+import { ChatPage } from '../pages/chat/chat';
 import { WebbrowserPage } from '../pages/webbrowser/webbrowser';
 
 
@@ -20,6 +24,10 @@ import { ApiService } from '../providers/apiService';
    MyApp,
    HomePage,
    NewsPage,
+   SignupPage,
+   LoginPage,
+   UploadPage,
+   ChatPage,
    WebbrowserPage
  ],
  imports: [
@@ -32,6 +40,10 @@ import { ApiService } from '../providers/apiService';
    MyApp,
    HomePage,
    NewsPage,
+   SignupPage,
+   LoginPage,
+   UploadPage,
+   ChatPage,
    WebbrowserPage
  ],
  providers: [

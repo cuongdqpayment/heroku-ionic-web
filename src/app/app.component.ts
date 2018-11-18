@@ -6,6 +6,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { HomePage } from '../pages/home/home';
 import { NewsPage } from '../pages/news/news';
 import { WebbrowserPage } from '../pages/webbrowser/webbrowser';
+import { UploadPage } from '../pages/upload/upload';
 @Component({
   templateUrl: 'app.html'
 })
@@ -14,11 +15,23 @@ export class MyApp {
 
   rootPage:any = HomePage;
   pages: any =
-    [{title:"Trang chủ",
+    [ {title:"Trang chủ",
       page_id:1
       },
       {title:"Tin tức",
       page_id:2
+      },
+      {title:"Upload",
+      page_id:3
+      },
+      {title:"trang 4",
+      page_id:4
+      },
+      {title:"trang 5",
+      page_id:5
+      },
+      {title:"trang 6",
+      page_id:6
       },
       {title:"Tìm kiếm",
       page_id:99
@@ -47,6 +60,9 @@ export class MyApp {
         break;
       case 2:
         this.navCtrl.push(NewsPage);
+        break;
+      case 3:
+        this.navCtrl.push(UploadPage);
         break;
       case 99:
       this.navCtrl.push(WebbrowserPage);
