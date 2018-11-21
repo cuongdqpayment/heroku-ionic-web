@@ -8,7 +8,7 @@ const mime = require('mime-types');
 const request = require('request');
 const HTMLParser = require('node-html-parser');
 const cheerio = require('cheerio');
-const screenShotHtml = require("node-server-screenshot");
+//const screenShotHtml = require("node-server-screenshot");
 
 //duong dan temp cua he thong truong hop khong co quyen truy cap thu muc
 const tempdir = os.tmpdir();
@@ -333,9 +333,9 @@ server.get('/url-request-image/*',(req,res,next)=>{
         + decodeURIComponent(urlRequest).replace(/\//g, '_').replace(/:/g, '')
         + ".png";
     //chup 1 anh cua duong dan luu vao screen_shot_images
-    screenShotHtml.fromURL(urlRequest, dirScreenShot
+    /* screenShotHtml.fromURL(urlRequest, dirScreenShot
         + systempath.sep
-        + screenShotFilename,{width:327,height:245}, (err) => { });
+        + screenShotFilename,{width:327,height:245}, (err) => { }); */
     //--------------  
 
     request(urlRequest, function (error, response, body) {

@@ -41,7 +41,6 @@
     "ionicons": "3.0.0",
     "mime-types": "^2.1.21",
     "node-html-parser": "^1.1.11",
-    "node-server-screenshot": "^0.2.1",
     "os": "^0.1.1",
     "path": "^0.12.7",
     "request": "^2.88.0",
