@@ -127,14 +127,15 @@ server.post('/any-form',(req,res,next)=>{
                 });
             }
         }
+
+        //gui trang thai bao noi dung tra ve
+        res.writeHead(200, { 'Content-Type': 'application/json'});
+        res.end(JSON.stringify(jsonReturn));
     });
-    //gui trang thai bao noi dung tra ve
-    res.writeHead(200, { 'Content-Type': 'application/json'});
-    res.end(JSON.stringify(jsonReturn));
 });
 
 //3.thuc hien post duong dan /file_upload
-server.post('/file_upload',(req,res,next)=>{
+server.post('/file-upload',(req,res,next)=>{
     const form = new formidable.IncomingForm();
     var jsonReturn={
         command_id: method,
@@ -172,12 +173,12 @@ server.post('/file_upload',(req,res,next)=>{
                 //kiem tra tinh hop le cua file roi moi luu vao 
                 if (key.indexOf('file2Upload')>=0){
                     let curdatetime = new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g, '').replace(/:/g, '');
-                    var filenameStored = dirUpload + systempath.sep
-                        + curdatetime + "_"
+                    var filenameStored =  curdatetime + "_"
                         + files[key].size + "_"
                         + files[key].name;
+                    
                     fs.createReadStream(files[key].path)
-                        .pipe(fs.createWriteStream(filenameStored))
+                        .pipe(fs.createWriteStream(dirUpload + systempath.sep + filenameStored))
                         ;
 
                     //tra ket qua cho user biet
@@ -186,8 +187,10 @@ server.post('/file_upload',(req,res,next)=>{
                         path:files[key].path,
                         file_name: files[key].name,
                         content_type:files[key].type,
-                        file_sise:  files[key].size
+                        file_sise:  files[key].size,
+                        url_img: reqFullHost + '/file-upload/fix/' + filenameStored
                     });
+
                     res.writeHead(200, { 'Content-Type': 'application/json'});
                 }else{
                     //khong phai tham so cua minh thi bo qua khong luu
@@ -196,10 +199,11 @@ server.post('/file_upload',(req,res,next)=>{
                 }
             }
         }
-        
+        //
+        //gui trang thai bao noi dung tra ve
+        res.end(JSON.stringify(jsonReturn));
     });
-    //gui trang thai bao noi dung tra ve
-    res.end(JSON.stringify(jsonReturn));
+    
 });
 
 
@@ -239,7 +243,7 @@ server.post('/json-data',(req,res,next)=>{
             //tuy vao cac command_id ma chung ta xu ly tra ket qua hop le
             //'Content-Type': 'application/json': The default encoding is UTF-8. 
             res.writeHead(200, { 'Content-Type': 'application/json'});
-            jsonReturn.your_params.push('OK');
+            jsonReturn.your_params.push(postDataObject.command_id);
         }else{
             //day la cac chuoi post khong mong doi tu client
             //co the la cac hacker thuc hien 
@@ -255,7 +259,7 @@ server.post('/json-data',(req,res,next)=>{
 server.get('/test-upload',(req,res,next)=>{
     //
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write('<form action="' + reqFullHost + '/file_upload" method="post" enctype="multipart/form-data">');
+    res.write('<form action="' + reqFullHost + '/file-upload" method="post" enctype="multipart/form-data">');
     res.write('<input type="text" name="user" value="cuongdq"><br>');
     res.write('<input type="file" name="file2Upload" multiple><br>');
     res.write('<input type="submit">');
@@ -263,8 +267,8 @@ server.get('/test-upload',(req,res,next)=>{
     return res.end();
 });
 
-//6. GET /file_upload/<tmp/fix>/<tenfile>
-server.get('/file_upload/*',(req,res,next)=>{
+//6. GET /file-upload/<tmp/fix>/<tenfile>
+server.get('/file-upload/*',(req,res,next)=>{
     let isTmp = pathName.substring(13,16)==='tmp';
     let isScr = pathName.substring(13,16)==='scr';
     let imgDir = isTmp ? tempdir : isScr? dirScreenShot : dirUpload;
@@ -286,34 +290,33 @@ server.get('/file_upload/*',(req,res,next)=>{
 });
 
 //7. get file api from api_sample
-server.get('/api_samples/*',(req,res,next)=>{
+server.get('/api-samples/*',(req,res,next)=>{
     // 
-    const fileName = pathName;
-    fileName = "api_samples" + systempath.sep + fileName.substr(13);
+    const fileName = "api_samples" + systempath.sep + pathName.substr(13);
 
     fs.readFile(fileName, { encoding: 'utf-8', flag: 'r' }, function (error, data) {
         if (!error) {
-            res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
+            res.writeHead(200, {'Content-Type': 'application/json' });
             res.end(data);
         } else {
-            res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
+            res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(error));
         }
     });
 });
 
 //8. lay chuoi request thuc su link
-server.get('/url_request/*',(req,res,next)=>{
+server.get('/url-request/*',(req,res,next)=>{
     const urlRequest = pathName.substr(13);
     request(urlRequest, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             //console.log(body) // Print the google web page.
             //doc body lay mot anh dai dien?? icon?? 
-            res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'text/html' });
+            res.writeHead(200, {'Content-Type': 'text/html'});
             res.end(body);
         } else {
             //console.log(error);
-            res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
+            res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(error));
         }
     });
@@ -321,25 +324,25 @@ server.get('/url_request/*',(req,res,next)=>{
 
 
 //9. lay chuoi request thuc su link
-server.get('/url_request_image/*',(req,res,next)=>{
+server.get('/url-request-image/*',(req,res,next)=>{
     //lay chuoi request thuc su link
     const urlRequest = pathName.substr(19);
 
     let curdatetime = new Date().toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/-/g, '').replace(/:/g, '');
-    const screenShotFilename = dirScreenShot
-        + systempath.sep
-        + curdatetime + "_" + "screenshot_"
+    const screenShotFilename = curdatetime + "_" + "screenshot_"
         + decodeURIComponent(urlRequest).replace(/\//g, '_').replace(/:/g, '')
         + ".png";
     //chup 1 anh cua duong dan luu vao screen_shot_images
-    screenShotHtml.fromURL(urlRequest, screenShotFilename,{width:327,height:245}, (err) => { });
+    screenShotHtml.fromURL(urlRequest, dirScreenShot
+        + systempath.sep
+        + screenShotFilename,{width:327,height:245}, (err) => { });
     //--------------  
 
     request(urlRequest, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             //console.log(body) // Print the google web page.
             //doc body lay mot anh dai dien?? icon?? 
-            res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
+            res.writeHead(200, {'Content-Type': 'application/json'});
             //loc lay anh dai dien dau tien va tra ve json anh
             const root = HTMLParser.parse(body);
             const imgHtml = (root.querySelector('img') ? root.querySelector('img').toString() : '<img src="">');
@@ -359,12 +362,12 @@ server.get('/url_request_image/*',(req,res,next)=>{
                     title: title,
                     h1: h1,
                     h2: h2,
-                    screen_shot: screenShotFilename
+                    screen_shot: reqFullHost + '/file-upload/src/' + screenShotFilename
                 }
             ));
         } else {
             //console.log(error);
-            res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
+            res.writeHead(404, {'Content-Type': 'application/json'});
             res.end(JSON.stringify(error));
         }
     });
@@ -372,7 +375,7 @@ server.get('/url_request_image/*',(req,res,next)=>{
 
 
 //10. list toan bo cac file upload len sys.tmp kieu anh thoi
-server.get('/uploaded_images/*',(req,res,next)=>{
+server.get('/uploaded-images/*',(req,res,next)=>{
     // list toan bo cac file upload len sys.tmp kieu anh thoi
     let isTmp = pathName.substring(17) == 'tmp';
     let isScr = pathName.substring(17) == 'scr';
@@ -408,12 +411,12 @@ server.get('/uploaded_images/*',(req,res,next)=>{
 
         //tra ket qua ve cho client neu khong thi no doi miet
         if (list_images.length > 0) {
-            res.writeHead(200, { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
             //res.end("Server had " + list_image.length);
             responseJson["results"] = list_images;
             res.end(JSON.stringify(responseJson));
         } else {
-            res.writeHead(404, { 'Access-Control-Allow-Origin': '*' });
+            res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(responseJson));
         }
 
@@ -423,7 +426,7 @@ server.get('/uploaded_images/*',(req,res,next)=>{
 
 
 //11. list toan bo cac file upload len sys.tmp kieu anh thoi
-server.get('/test_list_images/*',(req,res,next)=>{
+server.get('/test-list-images/*',(req,res,next)=>{
     // list toan bo cac file upload len sys.tmp kieu anh thoi
     let isTmp = pathName.substring(18) == 'tmp';
     let isScr = pathName.substring(18) == 'scr';
@@ -439,7 +442,7 @@ server.get('/test_list_images/*',(req,res,next)=>{
                     &&
                     mime.lookup(file).indexOf('image/') >= 0) {
                     res.write("<p>" + "<img title='" + file + "' " + "alt='" + (++i) + "' " +
-                        " src='" + reqFullHost + "/file_upload/"
+                        " src='" + reqFullHost + "/file-upload/"
                         + imgLink + "/"
                         + file + "' "
                         + " width='300' height='200' />" + "</p>");
@@ -452,17 +455,36 @@ server.get('/test_list_images/*',(req,res,next)=>{
     });
 });
 
+//12. mo dia chi trang web da duoc ma hoa luu tru chuyen doi ngan gon
+//xem dich vu bit.ly
+server.get('/bit.ly/*',(req,res,next)=>{
+    //doc chuoi ma hoa phia sau
+    const shortCode = pathName.substring(8);
+    //chuyen doi chuoi ma hoa da duoc ma hoa trong db
+    //lay duong dan http thuc su cua trang web
+    //chuyen tra ve dinh tuyen
+    var url = 'https://css-tricks.com/redirect-web-page/';
+    if (shortCode=='1'){
+        url = 'http://dantri.com.vn';
+    }
+
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.write('<meta http-equiv="refresh" content="0; URL=\''+ url + '\'" />');
+    return res.end();
+});
+
 //The 404 Route (ALWAYS Keep this as the last route)
-server.get('*', function(req, res){
+server.all('*', function(req, res){
     //gui trang thai bao noi dung tra ve
     res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8' });
-    res.end('<h1>Đừng tìm kiếm vô ích. Đố mầy hack tau đấy!</h1>Are You Lazy???');
-  });
+    res.end('<h1>Đừng tìm kiếm vô ích. Đố mầy hack đấy!</h1>Are You Lazy???');
+});
 
-app.set('port', process.env.PORT || 8888);
+server.set('port', process.env.PORT || 8888);
 
-app.listen(app.get('port'), function () {
-    console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with PORT: " + + app.get('port')
+server.listen(server.get('port'), function () {
+    console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with PORT: " 
+    + server.get('port')
         + "\n tempdir: " + os.tmpdir()
         + "\n " + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
     );

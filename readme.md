@@ -45,39 +45,49 @@ biet de ung dung tai client goi ung dung lien quan mo file truc tiep ra
 
 #Cac duong dan:
 
-#mo form test upload file
-GET /test_upload/
+#1. su dung cho ionic default GET/
+GET /wwww/*
 
-#gui file bang form len upload
-POST /file_upload/
+#2. gui multiple file va params any bang form len test
+POST /any-form
 
-#gui len serer chuoi json POST
+#3. gui file bang form len upload
+POST /file-upload
+
+#4. gui len serer chuoi json POST
 #{command_id:"lenh gi"}
-POST /*
+POST /json-data
 
+
+#5. Mo trang web test upload file don gian xem server hoat dong
+GET /test-upload
+
+#6. su dung kiem tra file upload len luu vao 
+# temp, screen_shot_image, upload_files
 #dowload file from os.temp();
-#su dung kiem tra file upload len luu vao temp
-GET /file_upload/<tmp|scr|fix>/<tenfile>
+GET /file-upload/<tmp|scr|fix>/<tenfile>
 
-#Dowload file mau API bat ky duoi dang text json
+#7. Dowload file mau API bat ky duoi dang text json
 #cac mau duoc khai bao truoc bang ten file
-GET /api_samples/*<tenfile trong thu muc __dirsource?? + api_samples>
+GET /api-samples/*<tenfile trong thu muc __dirname + api_samples>
 
-#Gia lap lam proxy server get request url from server
-GET /url_request/<url can truy van>
+#8. Gia lap lam proxy server get request url from server
+GET /url-request/<url can truy van>
 
-#Lay thong tin anh dai dien va tom luot cua trang web, bo sung capture screen
-GET /url_request_image/<url can truy van>
+#9. Lay thong tin anh dai dien va 
+# tom luot cua trang web, bo sung capture screen
+GET /url-request-image/<url can truy van>
 
-#View list image co trong server 
-GET /test_list_images/<tmp|scr|fix/*>
+#10. Dowload danh sach image duoc upload len 
+# os.temp()|screenshot|upload;
+GET /uploaded-images/<tmp|scr|fix/*>
 
-#Dowload danh sach image duoc upload len os.temp()|screenshot|upload;
-GET /uploaded_images/<tmp|scr|fix/*>
+#11. View list image co trong server 
+GET /test-list-images/<tmp|scr|fix/*>
 
-#Su dung get www cua ionic
-GET /index.html ...
 
+#12 Neu truy cap khong dung dia chi
+# server tra ve YOUR ARE STUPID!
 
 
 #Tao file ionic moi:
