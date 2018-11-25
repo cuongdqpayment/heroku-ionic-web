@@ -65,4 +65,12 @@ export class HomePage {
     this.navCtrl.push(WebbrowserPage);
   }
 
+
+  loginFacebook(){
+    this.apiService.getJsonLogin('http://localhost:9235/auth/facebook')
+    .then(data=>console.log(data))
+    .catch(err=>console.log(err))
+    ;
+  }
+
 }

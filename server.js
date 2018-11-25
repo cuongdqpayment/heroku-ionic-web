@@ -10,6 +10,200 @@ const HTMLParser = require('node-html-parser');
 const cheerio = require('cheerio');
 //const screenShotHtml = require("node-server-screenshot");
 
+//phong chong tan cong ddos
+const DDDoS = require('dddos');
+
+
+//tao database luu tru mang xa hoi
+const db = require('./database-service');
+
+//su dung passport session de luu tru phien lam viec
+//Xác thực user là đây (lưu phiên và sử dụng chức năng)
+const passport = require('passport');
+const session = require('express-session');
+const sessionConfig = {
+    resave: false,
+    saveUninitialized: false,
+    secret: "cuongdq123",
+    //xem kiem tra lai luu catch bo nho cua session nay
+    //luu dich vu cloud token??? neu bat len thi facebook khong truy cap duoc
+    /* store: new MemcachedStore({
+        //may chu luu tru cache // do google tra ve >1 token
+        servers: ['http://localhost:9235']
+      }), */
+    signed: true
+    };
+
+
+server.use(session(sessionConfig));
+server.use(passport.initialize());
+server.use(passport.session());
+
+//Khai báo xác thực qua routes
+var auth = require('./routes/auth');
+server.use('/auth', auth);
+//-----------------------------
+
+//-- Điều khiển xác thực qua session
+//dieu khien tra req.user ve cho client nhu nao???
+passport.serializeUser(function(user, done) {
+    console.log('\n 2.serializeUser :\n');
+    console.log(user);
+    if (user.provider=='local'
+        ){
+        //can xac thuc trong database
+        if (user.username){
+            db.getRst("select * from local_user\
+                     where username ='"+user.username+"'")
+                     .then(row=>{
+                         console.log(row)
+                         user.token='12345509994244'; //token cua user ma hoa
+                         done(null,user);
+                    })
+                     .catch(err=>{
+                         console.log(err)
+                         done(err);
+                        }
+                        );
+        }else{
+            done({err:'Khong co user nhe'});
+        }
+        
+    }
+    else{
+
+    //luu user vao csdl nhe
+    //----- LUU LOG FILE BEFORE-----
+    var insert_user = {
+        name: 'SOCIAL_USERS',
+        cols: [{
+            name: 'PROVIDER_ID',
+            value: user.provider_id
+        },
+        {
+            name: 'PROVIDER',
+            value: user.provider
+        },
+        {
+            name: 'DISPLAY_NAME',
+            value: user.displayName
+        }
+        ,
+        {
+            name: 'LAST_ACCESS_TIME',
+            value: user.access_time
+        }
+        ,
+        {
+            name: 'TOKEN_ID',
+            value: user.token
+        }
+        ],
+        wheres: [
+            {
+            name: 'PROVIDER_ID',
+            value: user.provider_id
+            },
+            {
+                name: 'PROVIDER',
+                value: user.provider
+            }
+        ]
+    };
+
+    db.insert(insert_user)
+      .then(data => {
+          //console.log(data)
+        }
+      )
+      .catch(err=>{
+          db.runSql("update SOCIAL_USERS set COUNT_ACCESS=COUNT_ACCESS+1,\
+                     LAST_ACCESS_TIME ='"+user.access_time+"'\
+                     where PROVIDER_ID='"+user.provider_id+"'\
+                     and  PROVIDER='"+user.provider + "'")
+          .then(data=>{
+              //console.log(data)
+          })
+      });
+
+      //kiem tra database va duoc cap quyen
+      if (true){
+          done(null, user);
+      }else{
+        done({err:'User bi block khong cho phep truy cap'});
+      }
+
+
+    }
+    //-----------------------
+    
+    });
+    
+passport.deserializeUser(function(user, done) {
+        // placeholder for custom user deserialization.
+        // maybe you are getoing to get the user from mongo by id?
+        // null is for errors
+        
+        //khi goi isAuthenticated() 
+        //no se goi lai ham nay
+        //ta doc csdl ktra quyen
+        //kiem tra trang thai.... thay doi de tra ve cho user
+        //gan vai tro la 99 = admin
+        user.role=99;
+        
+        console.log('\n 4.deserializeUser:\n');
+        console.log(user);
+
+        done(null, user);
+    });
+//--------------------------
+
+
+// Tách nhóm này ra thành route_admin, route_users...
+// Tạo user mẫu local yêu cầu quyền admin
+server.get('/add-local-user',ensureAdminAuthenticated, (req, res) => { 
+    createLocalUser({});
+
+    db.getRsts("select * from local_users")
+    .then(rows=>{
+        res.header('Content-type', 'application/json; charset=utf-8');
+        res.end(JSON.stringify(rows))
+    })  
+});
+
+
+//Xem danh sách user mạng xã hội truy cập
+// yêu cầu quyền login
+server.get('/social-list',ensureAuthenticated, (req, res) => {  
+    db.getRsts("select * from social_users")
+    .then(rows=>{
+        res.header('Content-type', 'application/json; charset=utf-8');
+        res.end(JSON.stringify(rows))
+    })  
+});
+
+//test thay chức năng ionic
+server.get('/main', (req, res) => {
+    res.header('Content-type', 'text/html');
+    var html = "<h1>Hello, Secure World!</h1>\
+                <ul>\
+                <li><a href='/add-local-user'>CreateUser</a></li>\
+                <li><a href='/auth/login'>Login</a></li>\
+                <li><a href='/auth/logout'>logout</a></li>\
+                <li><a href='/social-list'>list user</a></li>\
+                </ul>";
+
+                // dump the user for debugging
+                //neu da duoc xac thuc thi session se gui thong tin profile cho minh qua user
+                if (req.isAuthenticated()) {
+                    html += "<p>authenticated as user:</p>"
+                    html += "<pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
+                }
+
+    res.end(html);
+});
+
+
 //duong dan temp cua he thong truong hop khong co quyen truy cap thu muc
 const tempdir = os.tmpdir();
 //tao duong dan luu tru file upload post
@@ -35,9 +229,12 @@ var reqFullHost;
 //--------------------------------------------
 //kiem tra ngo vao phong chong tan cong
 //neu cung 1 dia chi vao nhieu thi tu choi ngay
+//--------------------------------------------
+//kiem tra ngo vao phong chong tan cong
+//neu cung 1 dia chi vao nhieu thi tu choi ngay
 server.use(function (req, res, next) {
     //lay cac thong tin request ban dau de luu vao csdl
-    
+
     //doan lay thong tin cac bien su dung sau nay
     reqUrlString = req.url;
     reqOriginalPath = req.originalUrl;
@@ -46,9 +243,132 @@ server.use(function (req, res, next) {
     reqFullHost = req.protocol + '://' + req.get('host');
     //encodeURIComponent('אובמה') // %D7%90%D7%95%D7%91%D7%9E%D7%94 
     //decodeURIComponent('%D7%90%D7%95%D7%91%D7%9E%D7%94') // אובמה
-    console.log('from:' + req.ip + '\n' + method +" " + reqFullHost + '/' + pathName);
+    //console.log('from:' + req.ip + '\n' + method +" " + reqFullHost + '/' + pathName);
+    
+    //----- LUU LOG FILE BEFORE-----
+    var log = {
+        name: 'LOG_ACCESS',
+        cols: [{
+            name: 'IP',
+            value: req.ip
+        },
+        {
+            name: 'ACCESS_INFO',
+            value: method + " " + reqFullHost + '/' + pathName
+        },
+        {
+            name: 'DEVICE_INFO',
+            value: req.headers["user-agent"]
+        }
+        ],
+        wheres: [{
+            name: 'IP',
+            value: req.ip
+        }]
+    };
+    db.insert(log)
+      .then(data => {
+          //console.log(data)
+        }
+      )
+      .catch(err=>{
+          db.runSql("update LOG_ACCESS set LOG_COUNT=LOG_COUNT+1 where IP='"+req.ip+"'")
+          .then(data=>{
+              //console.log(data)
+          })
+      });
     //-----------------------------------------
+    //tra den phien tiep theo
+    next();
+});
 
+
+
+//CHONG TAN CONG DDDOS
+//ngan chan truy cap ddos tra ket qua cho user neu truy cap tan suat lon
+let ddos = new DDDoS({
+    errorData: "Hãy bình tĩnh, đợi tý đi!",
+    //Data to be passes to the client on DDoS detection. Default: "Not so fast!".
+    errorCode: 429,
+    //HTTP error code to be set on DDoS detection. Default: 429 (Too Many Requests)
+    weight: 1,
+    maxWeight: 10,
+    checkInterval: 1000,
+    rules: [
+        { //cho phep trang chu truy cap 16 yeu cau / 1 giay
+            string: '/',
+            maxWeight: 30
+        },
+        { // Allow 4 requests accessing the application API per checkInterval 
+            regexp: "^/api.*",
+            flags: "i",
+            maxWeight: 4,
+            queueSize: 4 // If request limit is exceeded, new requests are added to the queue 
+        },
+        { // Chi cho phep 1 request trong 1 giay thoi, neu qua se bao not so fast 
+            string: "/test-upload",
+            maxWeight: 1
+        },
+        { // Allow up to 16 other requests per check interval.
+            regexp: ".*",
+            maxWeight: 16
+        }
+    ]
+});
+
+server.use(ddos.express('ip', 'path'));
+
+/**
+ * CAC CONTENT_TYPE TRA VE CLIENT LUU Y NHU SAU:
+ * 1. TRA JSON KET QUA DUNG: DEFAULT LA UTF-8
+ * res.writeHead(200, { 'Content-Type': 'application/json'});
+ * 2. TRA JSON KET QUA SAI:
+ * res.writeHead(404, { 'Content-Type': 'application/json'});
+ * 3. TRA VE WEB HTML: Dung la 200/sai la 404
+ * res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8' });
+ * 4. TRA VE FILE UNG DUNG: Dung la 200
+ * res.writeHead(200, {'Content-Type': mime.lookup(filename) });
+ * 
+ */
+server.use((req, res, next) => {
+
+    //----- LUU LOG FILE TRUY CAP CHUC NANG-----
+    var log = {
+        name: 'LOG_ACCESS_DETAILS',
+        cols: [{
+            name: 'IP',
+            value: req.ip
+        },
+        {
+            name: 'ACCESS_INFO',
+            value: method + " " + reqFullHost + '/' + pathName
+        },
+        {
+            name: 'DEVICE_INFO',
+            value: req.headers["user-agent"]
+        }
+        ],
+        wheres: [{
+            name: 'IP',
+            value: req.ip
+        }]
+    };
+    db.insert(log)
+      .then(data => {
+          console.log(data)
+        }
+      )
+      .catch(err=>{
+          db.runSql("update LOG_ACCESS_DETAILS set LOG_COUNT=LOG_COUNT+1 "
+                    +", DEVICE_INFO='"+req.headers["user-agent"]+"'"
+                    +" where IP='"+req.ip+"'"
+                    +" and ACCESS_INFO='"+method + " " + reqFullHost + '/' + pathName+"'")
+          .then(data=>{
+              console.log(data)
+          })
+      });
+    //-----------------------------------------
+    
     res.header("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
     //res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
     //res.header('Access-Control-Allow-Origin', 'http://localhost:8100');
@@ -59,6 +379,7 @@ server.use(function (req, res, next) {
     //tra den phien tiep theo
     next();
 });
+
 
 /**
  * CAC CONTENT_TYPE TRA VE CLIENT LUU Y NHU SAU:
@@ -480,7 +801,18 @@ server.all('*', function(req, res){
     res.end('<h1>Đừng tìm kiếm vô ích. Đố mầy hack đấy!</h1>Are You Lazy???');
 });
 
-server.set('port', process.env.PORT || 8888);
+
+
+//xu ly loi tat ca
+//xu ly cac loi khac nhau
+server.use(logErrors)
+server.use(clientErrorHandler)
+server.use(errorHandler)
+
+
+
+//------ Sử dụng PORT và khởi động server ------------/
+server.set('port', process.env.PORT || 9235);
 
 server.listen(server.get('port'), function () {
     console.log("Server (" + os.platform() + "; " + os.arch() + ") is started with PORT: " 
@@ -489,3 +821,73 @@ server.listen(server.get('port'), function () {
         + "\n " + new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
     );
 });
+//------ Sử dụng PORT và khởi động server END -------/
+
+// Các hàm kèm theo để hỗ trợ bug lỗi và quyền xác nhận
+function logErrors (err, req, res, next) {
+    //console.error('\n logErrors:\n')
+    //console.error(err)
+    next(err)
+}
+
+function clientErrorHandler (err, req, res, next) {
+    //console.error('\n clientErrorHandler:\n')
+    //console.error(err)
+    
+    if (req.xhr) {
+        res.status(500).send({ error: 'Something failed!' })
+    } else {
+        next(err)
+    }
+}
+
+function errorHandler (err, req, res, next) {
+    //console.error('\n errorHandler:\n')
+    //console.error(err)
+    res.end(JSON.stringify(err))
+  }
+
+//ham bao dam login xac thuc tung chuc nang
+function ensureAuthenticated(req, res, next) {
+    //ham nay neu duoc xac thuc thi cho di tiep
+  if (req.isAuthenticated()) { return next(); }
+  //neu khong duoc xac thuc thi tra ve lai duong dan trang chu
+  res.redirect('/')
+}
+
+function ensureAdminAuthenticated(req, res, next) {
+    //ham nay neu duoc xac thuc thi cho di tiep
+    //ham kiem tra xac thuc se goi deserializeUser
+  if (req.isAuthenticated()
+        &&req.user
+        &&req.user.role==99
+        ) { return next(); }
+  //neu khong duoc xac thuc thi tra ve lai duong dan trang chu
+  res.redirect('/')
+}
+
+//gia su truyen tu form vao thi truyen bien nay
+function createLocalUser(jsonUserSql){
+    var insert_user = {
+        name: 'LOCAL_USERS',
+        cols: [{
+            name: 'USERNAME',
+            value: 'CUONGDQ'
+        },
+        {
+            name: 'PASSWORD',
+            value: 'admin'
+        },
+        {
+            name: 'DISPLAY_NAME',
+            value: 'Đoàn Quốc Cường'
+        }
+        ]
+    };
+
+    db.insert(insert_user)
+      .then(data => {
+          //console.log(data)
+        }
+      );
+}

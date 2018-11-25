@@ -3,6 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { Injectable } from '@angular/core';
 import 'rxjs/add/operator/map'
 
+
 @Injectable()
 export class ApiService {
 
@@ -20,6 +21,13 @@ export class ApiService {
     //this.sanitizer.bypassSecurityTrustHtml(webhtml)
     return this.httpClient.get(url,{ responseType: 'text'})
        .map(webhtml => webhtml);
+  }
+
+  getJsonLogin(url: string) {
+    //dua chuoi url, tra ve ket qua json
+    return this.httpClient.get(url)
+       .toPromise()
+       .then(data=>console.log(data));
   }
 
   postHtmlWeb(url: string, jsonRequest: any) {
